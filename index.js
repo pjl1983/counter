@@ -1,17 +1,23 @@
 let number = [];
 let comma = 0;
+const number_container = 'number_container';
+const new_number = 'new_number';
+const current_number = 'current_number';
+const remove_number = 'remove_number';
 
 function animateNumber() {
-	const numberContainerValue = document.getElementsByClassName('number_container');
+	const numberContainerValue = document.getElementsByClassName(number_container);
 	for (let i = 0; i < numberContainerValue.length; i++) {
-		if (numberContainerValue[i].childElementCount > 1) {
-			for (let x = 0; x < numberContainerValue[i].childNodes.length; x++) {
-				if (numberContainerValue[i].childNodes[x].className === 'new_number') {
-					numberContainerValue[i].childNodes[x].classList.remove('new_number');
-					numberContainerValue[i].childNodes[x].classList.add('current_number');
-				} else if (numberContainerValue[i].childNodes[x].className === 'current_number') {
-					numberContainerValue[i].childNodes[x].classList.remove('current_number');
-					numberContainerValue[i].childNodes[x].classList.add('remove_number');
+		let numberContainerElement = numberContainerValue[i];
+		if (numberContainerElement.childElementCount > 1) {
+			for (let x = 0; x < numberContainerElement.childNodes.length; x++) {
+				let childNode = numberContainerElement.childNodes[x];
+				if (childNode.className === new_number) {
+					childNode.classList.remove(new_number);
+					childNode.classList.add(current_number);
+				} else if (childNode.className === current_number) {
+					childNode.classList.remove(current_number);
+					childNode.classList.add(remove_number);
 				}
 			}
 		}
@@ -28,7 +34,7 @@ function setNumber(arrayValue) {
 
 	for (let i = 0; i < number.length; i++) {
 		let node = document.createElement('div');
-		node.classList.add('number_container');
+		node.classList.add(number_container);
 		node.setAttribute('id', 'position_' + i);
 		node.innerHTML = '<div class="current_number">' + number[i] + '</div>';
 		document.getElementById('counter').appendChild(node);
@@ -49,22 +55,24 @@ function setNumber(arrayValue) {
 }
 
 function poll(newNumber) {
-	const numberContainerValue = document.getElementsByClassName('number_container');
+	const numberContainerValue = document.getElementsByClassName(number_container);
 
 	if (newNumber.length !== number.length) {
 		setNumber(newNumber);
 	}
 
 	for (let i = 0; i < numberContainerValue.length; i++) {
-		for (let x = 0; x < numberContainerValue[i].childNodes.length; x++) {
-			if (numberContainerValue[i].childNodes[x].className === 'remove_number') {
-				numberContainerValue[i].removeChild(numberContainerValue[i].childNodes[x])
+		let numberContainerElement = numberContainerValue[i];
+		for (let x = 0; x < numberContainerElement.childNodes.length; x++) {
+			let childNode = numberContainerElement.childNodes[x];
+			if (childNode.className === remove_number) {
+				numberContainerElement.removeChild(childNode)
 			}
 		}
 
-		if (Number(numberContainerValue[i].innerText) !== Number(newNumber[i])) {
+		if (Number(numberContainerElement.innerText) !== Number(newNumber[i])) {
 			let node = document.createElement('div');
-			node.classList.add('new_number');
+			node.classList.add(new_number);
 			node.innerHTML = newNumber[i].toString();
 			const parent = document.getElementById('position_' + i);
 			document.getElementById('position_' + i).insertBefore(node, parent.childNodes[0]);
@@ -75,22 +83,20 @@ function poll(newNumber) {
 }
 
 function init() {
-	let i = 500;
+	let i = 999999995;
 
 	function stringToArray(string) {
 		return string.split('');
 	}
 
-	(function interval() {
-		setTimeout(() => {
-			var x = i.toString();
-			poll(stringToArray(x));
-			i += 1;
-			interval();
-		}, 100);
-	})();
+	function interval() {
+		poll(stringToArray(i.toString()));
+		i += 1;
+	}
+
+	setInterval(interval, 1000);
 }
 
-window.onload = () => {
+window.onload = function(){
 	init();
 };
